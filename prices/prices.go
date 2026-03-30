@@ -15,10 +15,10 @@ var gstCategories = map[float64]string{
 }
 
 type GSTCalculation struct {
-	GSTRate       float64
-	Category      string
-	BasePrices    []float64
-	PricesWithGST map[string]string
+	GSTRate       float64            `json:"gst_rate"`
+	Category      string             `json:"category"`
+	BasePrices    []float64          `json:"base_prices"`
+	PricesWithGST map[string]string  `json:"prices_with_gst"`
 }
 
 func (calc *GSTCalculation) LoadPricesFromFile() {
