@@ -2,8 +2,6 @@ package prices
 
 import (
 	"fmt"
-
-	"example.com/gotax/utils"
 )
 
 var gstCategories = map[float64]string{
@@ -14,34 +12,26 @@ var gstCategories = map[float64]string{
 	0.28: "Luxury Items",
 }
 
-type GSTCalculation struct {
-	GSTRate       float64            `json:"gst_rate"`
-	Category      string             `json:"category"`
-	BasePrices    []float64          `json:"base_prices"`
-	PricesWithGST map[string]string  `json:"prices_with_gst"`
+type IOManager interface {
+	LoadPrices() ([]float64, error)
+	SaveResult(data any) error
 }
 
-func (calc *GSTCalculation) LoadPricesFromFile() {
+type GSTCalculation struct {
+	Manager       IOManager         `json:"-"`
+	GSTRate       float64           `json:"gst_rate"`
+	Category      string            `json:"category"`
+	BasePrices    []float64         `json:"base_prices"`
+	PricesWithGST map[string]string `json:"prices_with_gst"`
+}
 
-	lines, err := utils.ReadLines("prices.txt")
-
+func (calc *GSTCalculation) Process() error {
+	prices, err := calc.Manager.LoadPrices()
 	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	prices, err := utils.StringToFloat(lines)
-
-	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	calc.BasePrices = prices
-}
-
-func (calc *GSTCalculation) Process() {
-	calc.LoadPricesFromFile()
 	result := make(map[string]string)
 
 	for _, price := range calc.BasePrices {
@@ -51,13 +41,12 @@ func (calc *GSTCalculation) Process() {
 
 	calc.PricesWithGST = result
 
-	utils.WriteJson(fmt.Sprintf("result_%.0f.json", calc.GSTRate*100), calc)
-
-	// fmt.Printf("Category: %s | GST (%.0f%%): %v\n", calc.Category, calc.GSTRate*100, calc.PricesWithGST)
+	return calc.Manager.SaveResult(calc)
 }
 
-func New(gstRate float64) *GSTCalculation {
+func New(gstRate float64, manager IOManager) *GSTCalculation {
 	return &GSTCalculation{
+		Manager:    manager,
 		BasePrices: []float64{100, 500, 1000},
 		GSTRate:    gstRate,
 		Category:   gstCategories[gstRate],
