@@ -1,10 +1,9 @@
 package prices
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strconv"
+
+	"example.com/gotax/utils"
 )
 
 var gstCategories = map[float64]string{
@@ -23,43 +22,19 @@ type GSTCalculation struct {
 }
 
 func (calc *GSTCalculation) LoadPricesFromFile() {
-	file, err := os.Open("prices.txt")
+
+	lines, err := utils.ReadLines("prices.txt")
 
 	if err != nil {
-		fmt.Println("Could not open file!")
 		fmt.Println(err)
 		return
 	}
 
-	scanner := bufio.NewScanner(file)
-
-	var lines []string
-
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	err = scanner.Err()
+	prices, err := utils.StringToFloat(lines)
 
 	if err != nil {
-		fmt.Println("Reading the file content failed.")
 		fmt.Println(err)
-		file.Close()
 		return
-	}
-
-	prices := make([]float64, len(lines))
-
-	for lineIdx, line := range lines {
-		floatPrice, err := strconv.ParseFloat(line, 64)
-
-		if err != nil {
-			fmt.Println("Converting price to float failed.")
-			fmt.Println(err)
-			file.Close()
-			return
-		}
-		prices[lineIdx] = floatPrice
 	}
 
 	calc.BasePrices = prices
