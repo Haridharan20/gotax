@@ -42,14 +42,18 @@ func (calc *GSTCalculation) LoadPricesFromFile() {
 
 func (calc *GSTCalculation) Process() {
 	calc.LoadPricesFromFile()
-	calc.PricesWithGST = make(map[string]string)
+	result := make(map[string]string)
 
 	for _, price := range calc.BasePrices {
 		gstIncludedPrice := price * (1 + calc.GSTRate)
-		calc.PricesWithGST[fmt.Sprintf("₹%.2f", price)] = fmt.Sprintf("₹%.2f", gstIncludedPrice)
+		result[fmt.Sprintf("₹%.2f", price)] = fmt.Sprintf("₹%.2f", gstIncludedPrice)
 	}
 
-	fmt.Printf("Category: %s | GST (%.0f%%): %v\n", calc.Category, calc.GSTRate*100, calc.PricesWithGST)
+	calc.PricesWithGST = result
+
+	utils.WriteJson(fmt.Sprintf("result_%.0f.json", calc.GSTRate*100), calc)
+
+	// fmt.Printf("Category: %s | GST (%.0f%%): %v\n", calc.Category, calc.GSTRate*100, calc.PricesWithGST)
 }
 
 func New(gstRate float64) *GSTCalculation {
