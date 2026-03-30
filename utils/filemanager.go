@@ -14,6 +14,8 @@ func ReadLines(fileName string) ([]string, error) {
 		return nil, errors.New("Could not open file!")
 	}
 
+	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 
 	var lines []string
@@ -25,11 +27,11 @@ func ReadLines(fileName string) ([]string, error) {
 	err = scanner.Err()
 
 	if err != nil {
-		file.Close()
+		// file.Close()
 		return nil, errors.New("Reading the file content failed.")
 	}
 
-	file.Close()
+	// file.Close()
 	return lines, nil
 }
 
@@ -48,6 +50,7 @@ func WriteJson(path string, data any) error {
 	if err != nil {
 		return errors.New("Failed to create a file")
 	}
+	defer file.Close()
 
 	encoder := json.NewEncoder(file)
 	err = encoder.Encode(data)
@@ -56,6 +59,6 @@ func WriteJson(path string, data any) error {
 		return errors.New("Failed to convert data to json")
 	}
 
-	file.Close()
+	// file.Close()
 	return nil
 }
