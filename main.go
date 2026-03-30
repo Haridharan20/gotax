@@ -14,7 +14,12 @@ func main() {
 	for _, gstRate := range gstRates {
 		fm := filemanager.New("prices.txt", fmt.Sprintf("result_%.0f.json", gstRate*100))
 		calculation := prices.New(gstRate, fm)
-		calculation.Process()
+		err := calculation.Process()
+
+		if err != nil {
+			fmt.Println("Could not process the Job.")
+			fmt.Println(err)
+		}
 	}
 
 	// Example: Use CMDManager for command-line input
