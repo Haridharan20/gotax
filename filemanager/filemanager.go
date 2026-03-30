@@ -21,3 +21,10 @@ func (fm FileManager) LoadPrices() ([]float64, error) {
 func (fm FileManager) SaveResult(data any) error {
 	return utils.WriteJson(fm.OutputFile, data)
 }
+
+func New(inputFile, outputFile string) FileManager {
+	return FileManager{
+		InputFile:  inputFile,
+		OutputFile: outputFile,
+	}
+}
